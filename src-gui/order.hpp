@@ -323,4 +323,24 @@ private:
     std::string m_ipv6;
 };
 
+class getBtcAddressOrder final:public order
+{
+public:
+    getBtcAddressOrder(const RpcId& Id);
+    getBtcAddressOrder(const std::string &json_str);
+    void execute(MainWindow &main_window);
+private:
+    std::string m_address;
+};
+
+class getBtcBalanceOrder final:public order
+{
+public:
+    getBtcBalanceOrder(const RpcId& Id);
+    getBtcBalanceOrder(const std::string &json_str);
+    void execute(MainWindow &main_window);
+private:
+    uint32_t m_balance;
+};
+
 #endif // ORDER_HPP

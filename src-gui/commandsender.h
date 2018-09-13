@@ -32,7 +32,9 @@ public:
         GET_STATUS,
         PAY,
         SET_ACCOUNT,
-        GET_GALAXY_IPV6
+        GET_GALAXY_IPV6,
+        GET_BTC_ADDRESS,
+        GET_BTC_BALANCE
     };
 
     explicit CommandSender(commandExecutor* comm_exec,QObject *parent = nullptr);

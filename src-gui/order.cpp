@@ -647,9 +647,73 @@ void getGalaxyIpV6Order::execute(MainWindow &main_window)
 	if( m_state == "ok" ) {
 		QString ipv6 = QString::fromStdString(m_ipv6);
 		main_window.setIps( ipv6, ipv6 );
-	} else  {
+	} else {
 		qDebug()<< "can't get address ip V6 ";
 	}
 }
 
+getBtcAddressOrder::getBtcAddressOrder(const RpcId& Id)
+:	order(Id)
+{
+	try{
+		m_cmd ="get_btc_address";
+		m_state = "ok";
+		m_id = Id.m_id;
+	}catch(std::exception &e){
+		qDebug()<<e.what();
+	}
+}
 
+getBtcAddressOrder::getBtcAddressOrder(const std::string &json_str)
+{
+	try{
+		nlohmann::json j = nlohmann::json::parse( json_str );
+		m_state = j["state"];
+		m_address = j["address"];
+		m_id = j["id"];
+	}catch(std::exception &e){
+		qDebug()<<e.what();
+		return;
+	}
+}
+
+void getBtcAddressOrder::execute(MainWindow &main_window)
+{
+	if( m_state == "ok" ) {
+
+	} else {
+		qDebug()<< "can't get bitcoin address";
+	}
+}
+
+getBtcBalanceOrder::getBtcBalanceOrder(const RpcId& Id)
+:	order(Id)
+{
+    try{
+        m_cmd ="get_btc_balance";
+    }catch(std::exception &e){
+        qDebug()<<e.what();
+    }
+}
+
+getBtcBalanceOrder::getBtcBalanceOrder(const std::string &json_str)
+{
+    try{
+        nlohmann::json j = nlohmann::json::parse( json_str );
+        m_state = j["state"];
+        m_balance = j["balance"];
+        m_id = j["id"];
+    }catch(std::exception &e){
+        qDebug()<<e.what();
+        return;
+    }
+}
+
+void getBtcBalanceOrder::execute(MainWindow &main_window)
+{
+	if( m_state == "ok" ) {
+		main_window.setBtc(m_balance);
+	} else  {
+		qDebug()<< "can't get bitcoin balance";
+	}
+}
