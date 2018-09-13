@@ -24,3 +24,6 @@
 [submodule "depends/backward-cpp"]
 	path = depends/backward-cpp
 	url = https://github.com/bombela/backward-cpp
+[submodule "depends/cppcodec"]
+	path = depends/cppcodec
+	url = https://github.com/tplgy/cppcodec.git
