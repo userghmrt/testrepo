@@ -2,28 +2,6 @@
 #include <json.hpp>
 
 
-#ifdef ENABLE_LIB_CURL
-c_curl_ptr::c_curl_ptr()
-:	m_ptr(nullptr)
-{
-	m_ptr = curl_easy_init();
-	if (m_ptr == nullptr) {
-		throw std::runtime_error("CURL init error");
-	}
-}
-
-c_curl_ptr::~c_curl_ptr() {
-	curl_easy_cleanup(m_ptr);
-}
-
-CURL *c_curl_ptr::get_raw_ptr() const {
-	return m_ptr;
-}
-
-#endif
-
-//////////////////////////////////////////////////////
-
 //this parametrs are static
 std::unique_ptr<bitcoin_node_cli> bitcoin_node_cli::m_instance;
 std::once_flag bitcoin_node_cli::m_once_flag;
@@ -80,25 +58,6 @@ std::string bitcoin_node_cli::get_new_address() const {
 
 std::string bitcoin_node_cli::send_request_and_get_response(const std::string &request) const {
 #ifdef ENABLE_LIB_CURL
-	c_curl_ptr curl;
-	curl_easy_setopt(curl.get_raw_ptr(), CURLOPT_URL, m_rpc_http_address.c_str());
-
-	curl_easy_setopt(curl.get_raw_ptr(), CURLOPT_POSTFIELDSIZE, request.size());
-	curl_easy_setopt(curl.get_raw_ptr(), CURLOPT_POSTFIELDS, request.c_str());
-	// TODO load user and pass from config
-	curl_easy_setopt(curl.get_raw_ptr(), CURLOPT_USERNAME, "bitcoinrpcUSERNAME");
-	curl_easy_setopt(curl.get_raw_ptr(), CURLOPT_PASSWORD, "bitcoinrpcPASSWORD");
-
-	std::string receive_data;
-	curl_easy_setopt(curl.get_raw_ptr(), CURLOPT_WRITEDATA, &receive_data);
-	curl_easy_setopt(curl.get_raw_ptr(), CURLOPT_WRITEFUNCTION, &bitcoin_node_cli::write_cb);
-
-	CURLcode ret_code = curl_easy_perform(curl.get_raw_ptr());
-	if(ret_code != CURLE_OK) {
-		pfp_warn("curl_easy_perform() failed: " << curl_easy_strerror(ret_code));
-		throw std::runtime_error("curl_easy_perform() failed: "s + curl_easy_strerror(ret_code));
-	}
-	return receive_data;
 #else
 	pfp_warn("Curl is disabled, can not query bitcoin in this program version.");
 	throw std::runtime_error("Curl is disabled (used for bitcoin)");

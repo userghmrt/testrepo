@@ -323,20 +323,6 @@ int main(int argc, const char * const * argv) { // the main() function
 		std::cerr<<"Error: setlocale."<<std::endl;
 	}
 
-	// This code MUST be 1-thread and very early in main
-	#ifdef ENABLE_LIB_CURL
-	CURLcode res = curl_global_init(CURL_GLOBAL_DEFAULT);
-	if(res != CURLE_OK) {
-		bitcoin_node_cli::curl_initialized=false;
-		std::cerr<<"Error: lib curl init."<<std::endl;
-	}
-	else{
-		bitcoin_node_cli::curl_initialized=true;
-	}
-	#else
-		std::cerr<<"Warning: lib curl is disabled."<<std::endl;
-	#endif
-
 	enum class t_program_type {
 		e_program_type_tunserver = 1,
 		e_program_type_newloop = 100,

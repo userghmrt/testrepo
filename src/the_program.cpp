@@ -8,11 +8,6 @@
 
 #include <clocale>
 
-
-#ifdef ENABLE_LIB_CURL
-	#include <curl/curl.h>
-#endif
-
 #include "bitcoin_node_cli.hpp"
 
 void c_the_program::take_args(int argc, const char **argv) {

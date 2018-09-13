@@ -5,21 +5,24 @@
 #include <boost/asio.hpp>
 #include <mutex>
 
-#ifdef ENABLE_LIB_CURL
-	#include <curl/curl.h>
-#endif
-
-
-#ifdef ENABLE_LIB_CURL
-class c_curl_ptr final {
+class http_json_rpc {
 	public:
-		c_curl_ptr();
-		~c_curl_ptr();
-		CURL *get_raw_ptr() const;
-	private:
-		CURL *m_ptr;
+		/**
+		 * @brief send_post_request
+		 * @param endpoint bitcoin node endpoint (ip + port)
+		 * @param json_request json data for send
+		 * @param username bitcoin rpc username
+		 * @param password bitcoin rpc password
+		 * @param timeout
+		 * @return resmonse from bitcoin node
+		 */
+		std::string send_post_request(
+		                              const boost::asio::ip::tcp::endpoint &endpoint,
+		                              const std::string &json_request,
+		                              const std::string &username,
+		                              const std::string &password,
+		                              const std::chrono::seconds &timeout);
 };
-#endif
 
 //////////////////////////////////////////////////////
 
