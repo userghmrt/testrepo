@@ -334,6 +334,9 @@ include_directories(depends/json/src)
 #add local CTPL
 include_directories(depends/CTPL)
 
+#add local cppcodec
+include_directories(depends/cppcodec)
+
 #add local backward-cpp for backtrace printing
 set(HAVE_BACKWARD 0)
 if(NOT WIN32 AND NOT APPLE)
