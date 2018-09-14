@@ -5,8 +5,6 @@
 //this parametrs are static
 std::unique_ptr<bitcoin_node_cli> bitcoin_node_cli::m_instance;
 std::once_flag bitcoin_node_cli::m_once_flag;
-bool bitcoin_node_cli::curl_initialized=false;
-
 
 bitcoin_node_cli& bitcoin_node_cli::get_instance()
 {
@@ -19,16 +17,15 @@ bitcoin_node_cli& bitcoin_node_cli::get_instance()
 
 bitcoin_node_cli::bitcoin_node_cli(const std::string &ip_address, unsigned short port)
 :
-	m_rpc_http_address("http://" + ip_address + ':' + std::to_string(port))
+	m_rpc_http_address("http://" + ip_address + ':' + std::to_string(port)),
+	m_ip(ip_address),
+	m_port(port),
+	m_http_json_rpc(std::make_unique<http_json_rpc<>>()) // TODO make factory (unit tests)
 {
 }
 
 uint32_t bitcoin_node_cli::get_balance() const {
 	std::lock_guard<std::mutex> lock(m_mutex);
-
-	if(!curl_initialized){
-		throw std::runtime_error("Error: curl is not initialized - in get balance");
-	}
 
 	const std::string request (R"({"method":"getbalance","params":["*",0],"id":1})");
 	const std::string receive_data = send_request_and_get_response(request);
@@ -44,10 +41,6 @@ uint32_t bitcoin_node_cli::get_balance() const {
 std::string bitcoin_node_cli::get_new_address() const {
 	std::lock_guard<std::mutex> lock(m_mutex);
 
-	if(!curl_initialized){
-		throw std::runtime_error("Error: curl is not initialized - in get new address");
-	}
-
 	const std::string request = R"({"method":"getnewaddress","params":[],"id":1})";
 	std::string receive_data = send_request_and_get_response(request);
 	pfp_mark("Receive data " << receive_data);
@@ -57,19 +50,8 @@ std::string bitcoin_node_cli::get_new_address() const {
 }
 
 std::string bitcoin_node_cli::send_request_and_get_response(const std::string &request) const {
-#ifdef ENABLE_LIB_CURL
-#else
-	pfp_warn("Curl is disabled, can not query bitcoin in this program version.");
-	throw std::runtime_error("Curl is disabled (used for bitcoin)");
-#endif
+	const boost::asio::ip::address ip = boost::asio::ip::address::from_string(m_ip);
+	const boost::asio::ip::tcp::endpoint endpoint(ip, m_port);
+	// TODO read user and pass from conf
+	return m_http_json_rpc->send_post_request(endpoint, request, "bitcoinrpcUSERNAME", "bitcoinrpcPASSWORD", std::chrono::seconds(5));
 }
-
-size_t bitcoin_node_cli::write_cb(void *ptr, size_t size, size_t nmemb, std::string *str) {
-	const size_t data_size = size * nmemb; // size of received data
-	if (data_size == 0) return data_size;
-	str->append(static_cast<const char *>(ptr), data_size);
-	return data_size;
-}
-
-
-

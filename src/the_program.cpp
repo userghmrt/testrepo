@@ -210,23 +210,6 @@ Leaving as documentation/example
 //	std::cerr << mo_reader::mo_file_reader::gettext("L_program_is_copyrighted") << std::endl;
 }
 
-void c_the_program::startup_curl() {
-	#ifdef ENABLE_LIB_CURL
-	// This curl init code MUST be 1-thread and very early in main
-	CURLcode res = curl_global_init(CURL_GLOBAL_DEFAULT);
-	if(res != CURLE_OK) {
-		bitcoin_node_cli::curl_initialized=false;
-		std::cerr<<"Error: lib curl init."<<std::endl;
-	}
-	else{
-		bitcoin_node_cli::curl_initialized=true;
-	}
-	#else
-		// initialize of the fake curl that does nothing
-		bitcoin_node_cli::curl_initialized=true;
-	#endif
-}
-
 void c_the_program::init_library_sodium() {
 	pfp_fact(mo_file_reader::gettext("L_starting_lib_libsodium"));
 

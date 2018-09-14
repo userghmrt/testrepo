@@ -355,7 +355,6 @@ int main(int argc, const char * const * argv) { // the main() function
 	the_program->startup_console_first();
 	the_program->startup_locales_early();
 	the_program->startup_data_dir();
-	the_program->startup_curl();
 	the_program->startup_version();
 	the_program->startup_locales_later();
 	the_program->init_library_sodium();
@@ -429,11 +428,6 @@ int main(int argc, const char * const * argv) { // the main() function
 	catch(...) {
 		std::cerr<<"(Error in printing previous error)";
 	}
-
-	#ifdef ENABLE_LIB_CURL
-		curl_global_cleanup();
-	#endif
-	bitcoin_node_cli::curl_initialized=false;
 
 	return exit_code;
 }
