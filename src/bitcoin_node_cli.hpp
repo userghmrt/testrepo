@@ -20,7 +20,8 @@ class i_http_json_rpc_provider {
 		 * @return resmonse from bitcoin node
 		 */
 		virtual std::string send_post_request(
-		                              const boost::asio::ip::tcp::endpoint &endpoint,
+		                              const std::string &address,
+		                              unsigned short port,
 		                              const std::string &json_request,
 		                              const std::string &username,
 		                              const std::string &password,
@@ -42,7 +43,8 @@ class http_json_rpc : public i_http_json_rpc_provider {
 		              );
 		http_json_rpc();
 		std::string send_post_request(
-		                              const boost::asio::ip::tcp::endpoint &endpoint,
+		                              const std::string &address,
+		                              unsigned short port,
 		                              const std::string &json_request,
 		                              const std::string &username,
 		                              const std::string &password,
@@ -53,7 +55,8 @@ class http_json_rpc : public i_http_json_rpc_provider {
 		std::unique_ptr<TSOCKET> m_socket;
 		std::string generate_post_data(
 		                               const std::string &json,
-		                               const boost::asio::ip::tcp::endpoint &endpoint,
+		                               const std::string &ip,
+		                               unsigned short port,
 		                               const std::string &user,
 				const std::string &pass);
 };
@@ -68,46 +71,66 @@ http_json_rpc<TSOCKET>::http_json_rpc()
 
 template<class TSOCKET>
 std::string http_json_rpc<TSOCKET>::send_post_request(
-                          const boost::asio::ip::tcp::endpoint &endpoint,
+                          const std::string &ip,
+                          unsigned short port,
                           const std::string &json_request,
                           const std::string &username,
                           const std::string &password,
                           const std::chrono::seconds &timeout) {
 	auto timeout_point = std::chrono::steady_clock::now() + timeout;
+	if (m_io_service->stopped()) m_io_service->reset();
 	boost::asio::io_service::work idle_work(*m_io_service);
-	std::thread run_thread([this]{m_io_service->run();});
-	
-	// connect
-	std::future<void> connect_future = m_socket->async_connect(endpoint, boost::asio::use_future);
-	std::future_status status;
-	status = connect_future.wait_until(timeout_point);
-	if (status != std::future_status::ready) throw std::runtime_error("send request timeout (connect)");
-	
-	// write request
-	const std::string post_data = generate_post_data(json_request, endpoint, username, password);
-	std::future<size_t> write_future = boost::asio::async_write(
-						*m_socket,
-						boost::asio::buffer(post_data.data(), post_data.size()),
-						boost::asio::use_future);
-	status = write_future.wait_until(timeout_point);
-	if (status != std::future_status::ready) throw std::runtime_error("send request timeout (write request)");
-	const size_t write_bytes = write_future.get();
-	pfp_dbg1("write " << write_bytes << " to bitcoin rpc");
-	
-	// read response
 	const size_t max_response_size = 1000;
-	std::string response('\0', max_response_size);
-	std::future<size_t> read_future = boost::asio::async_read(
-					*m_socket,
-					boost::asio::buffer(&response[0], response.size()),
-					boost::asio::use_future
-				);
-	status = read_future.wait_until(timeout_point);
-	if (status != std::future_status::ready) throw std::runtime_error("send request timeout (read response)");
-	const size_t readed_bytes = read_future.get();
-	pfp_dbg1("readed " << readed_bytes << "from bitcoin rpc");
-	while (response.back() == '\0') {
-		response.pop_back();
+	std::string response(max_response_size, '\0');
+	std::future_status status;
+	std::thread run_thread([this]{m_io_service->run();});
+	try {
+		// resolve address
+		// TODO resolver should be teplate parameters
+		boost::asio::ip::tcp::resolver::query query(ip, std::to_string(port));
+		boost::asio::ip::tcp::resolver resolver(*m_io_service);
+		std::future<boost::asio::ip::tcp::resolver::iterator> resolve_future = resolver.async_resolve(query, boost::asio::use_future);
+		status = resolve_future.wait_until(timeout_point);
+		if (status != std::future_status::ready) throw std::runtime_error("send request timeout (resolve)");
+		boost::asio::ip::tcp::resolver::iterator endpoint_it = resolve_future.get();
+		
+		// connect
+		std::future<void> connect_future = m_socket->async_connect(*endpoint_it, boost::asio::use_future);
+		status = connect_future.wait_until(timeout_point);
+		if (status != std::future_status::ready) throw std::runtime_error("send request timeout (connect)");
+		
+		// write request
+		const std::string post_data = generate_post_data(json_request, ip, port, username, password);
+		std::future<size_t> write_future = boost::asio::async_write(
+							*m_socket,
+							boost::asio::buffer(post_data.data(), post_data.size()),
+							boost::asio::use_future);
+		status = write_future.wait_until(timeout_point);
+		if (status != std::future_status::ready) throw std::runtime_error("send request timeout (write request)");
+		const size_t write_bytes = write_future.get();
+		pfp_dbg1("write " << write_bytes << " to bitcoin rpc");
+		
+		// read response
+		std::future<size_t> read_future = m_socket->async_read_some(boost::asio::buffer(&response[0], response.size()), boost::asio::use_future);
+		status = read_future.wait_until(timeout_point);
+		if (status != std::future_status::ready) throw std::runtime_error("send request timeout (read response)");
+		const size_t readed_bytes = read_future.get();
+		pfp_dbg1("readed " << readed_bytes << " from bitcoin rpc");
+		m_socket->close();
+		response.resize(readed_bytes);
+		// remove post header
+		if (!response.empty()) {
+			// no UB even if find returns npos
+			std::string response_without_post = response.erase(0, response.find('{'));
+			response = response_without_post;
+		}
+		while (response.back() == '\0') {
+			response.pop_back();
+		}
+	} catch (const std::exception &) {
+		m_io_service->stop(); // stop idle work
+		run_thread.join();
+		throw;
 	}
 	m_io_service->stop(); // stop idle work
 	run_thread.join();
@@ -115,12 +138,11 @@ std::string http_json_rpc<TSOCKET>::send_post_request(
 }
 
 template<class TSOCKET>
-std::string http_json_rpc<TSOCKET>::generate_post_data(const std::string &json, const boost::asio::ip::tcp::endpoint &endpoint, const std::string &user, const std::string &pass) {
-	const std::string ip = endpoint.address().to_string();
-	const unsigned short port = endpoint.port();
+std::string http_json_rpc<TSOCKET>::generate_post_data(const std::string &json, const std::string &ip, unsigned short port, const std::string &user, const std::string &pass) {
 	std::string post_data;
-	post_data += "POST / HTTP/1.1 \r\n";
+	post_data += "POST / HTTP/1.1\r\n";
 	post_data += "Host: " + ip + ":" + std::to_string(port) + "\r\n";
+	post_data += "Connection: close\r\n";
 	post_data += "Authorization: Basic " + base64::encode(user + ":" + pass) + "\r\n";
 	post_data += "User-Agent: ConnHttpJsonAuth\r\n";
 	post_data += "Accept: */*\r\n";
@@ -129,8 +151,10 @@ std::string http_json_rpc<TSOCKET>::generate_post_data(const std::string &json, 
 	post_data += "Content-Length: " + std::to_string(json.size()) + "\r\n";
 	post_data += "\r\n"; // new line
 	post_data += json;
+	post_data += "\n";
 	return post_data;
 }
+
 //////////////////////////////////////////////////////
 
 class bitcoin_node_cli final {

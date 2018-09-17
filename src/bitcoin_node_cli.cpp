@@ -27,7 +27,7 @@ bitcoin_node_cli::bitcoin_node_cli(const std::string &ip_address, unsigned short
 uint32_t bitcoin_node_cli::get_balance() const {
 	std::lock_guard<std::mutex> lock(m_mutex);
 
-	const std::string request (R"({"method":"getbalance","params":["*",0],"id":1})");
+	const std::string request (R"({"method":"getbalance","params":["*",0,false],"id":1})");
 	const std::string receive_data = send_request_and_get_response(request);
 	pfp_mark("Receive data " << receive_data);
 
@@ -50,8 +50,6 @@ std::string bitcoin_node_cli::get_new_address() const {
 }
 
 std::string bitcoin_node_cli::send_request_and_get_response(const std::string &request) const {
-	const boost::asio::ip::address ip = boost::asio::ip::address::from_string(m_ip);
-	const boost::asio::ip::tcp::endpoint endpoint(ip, m_port);
 	// TODO read user and pass from conf
-	return m_http_json_rpc->send_post_request(endpoint, request, "bitcoinrpcUSERNAME", "bitcoinrpcPASSWORD", std::chrono::seconds(5));
+	return m_http_json_rpc->send_post_request(m_ip, m_port, request, "bitcoinrpcUSERNAME", "bitcoinrpcPASSWORD", std::chrono::seconds(20));
 }
