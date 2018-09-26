@@ -100,6 +100,7 @@ private slots:
     void onAllowPeer(bool);
     void on_actionsettings_triggered();
     void onNetConnected(bool);
+	void on_actionGet_payment_address_triggered();
 
 private:
     commandExecutor *m_cmd_exec;

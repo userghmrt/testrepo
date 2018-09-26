@@ -3,6 +3,7 @@
 #include "order.hpp"
 #include "mainwindow.hpp"
 #include "nodecontrolerdialog.h"
+#include "qrdialog.h"
 
 
 std::string setIps::get_str() const
@@ -743,8 +744,8 @@ getPaymentAddressOrder::getPaymentAddressOrder(const std::string &json_str) {
 #include <QMessageBox>
 void getPaymentAddressOrder::execute(MainWindow &main_window) {
 	if( m_state == "ok" ) {
-		QMessageBox endBox(QMessageBox::Information, QString::fromStdString(m_address), QString::fromStdString(m_address));
-		endBox.exec();
+		QrDialog dlg( m_address );
+		dlg.exec();
 	} else  {
 		qDebug()<< "can't get payment address";
 	}

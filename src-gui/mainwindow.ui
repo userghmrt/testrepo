@@ -30,7 +30,7 @@
      <x>0</x>
      <y>0</y>
      <width>634</width>
-     <height>20</height>
+     <height>19</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_Plik">
@@ -39,6 +39,7 @@
     </property>
     <addaction name="actionDebug"/>
     <addaction name="actionsettings"/>
+    <addaction name="actionGet_payment_address"/>
    </widget>
    <addaction name="menu_Plik"/>
   </widget>
@@ -74,7 +75,7 @@
     <set>QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable</set>
    </property>
    <property name="windowTitle">
-    <string>Quick start</string>
+    <string>&amp;Quick start</string>
    </property>
    <attribute name="dockWidgetArea">
     <number>2</number>
@@ -141,7 +142,7 @@
     <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
    </property>
    <property name="windowTitle">
-    <string>Peer List</string>
+    <string>&amp;Peer List</string>
    </property>
    <attribute name="dockWidgetArea">
     <number>1</number>
@@ -183,6 +184,15 @@
    </property>
    <property name="text">
     <string>&amp;Settings</string>
+   </property>
+  </action>
+  <action name="actionGet_payment_address">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/globe-model</normaloff>:/globe-model</iconset>
+   </property>
+   <property name="text">
+    <string>Get payment address</string>
    </property>
   </action>
   <zorder>peerListDock</zorder>

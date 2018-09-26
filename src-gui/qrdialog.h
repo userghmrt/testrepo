@@ -18,7 +18,7 @@ class QrDialog : public QDialog
     QPixmap m_code;				//! qr picture
 
 public:
-    explicit QrDialog(QPixmap &qr_code,QWidget *parent = 0);	//!
+    explicit QrDialog( const std::string &qr_code, QWidget *parent = 0 );	//!
     ~QrDialog();
 
 private:
