@@ -717,3 +717,35 @@ void getBtcBalanceOrder::execute(MainWindow &main_window)
 		qDebug()<< "can't get bitcoin balance";
 	}
 }
+
+getPaymentAddressOrder::getPaymentAddressOrder(const RpcId& Id)
+:	order(Id)
+{
+	try{
+		m_cmd ="get_payment_address";
+	}catch(std::exception &e){
+		qDebug()<<e.what();
+	}
+}
+
+getPaymentAddressOrder::getPaymentAddressOrder(const std::string &json_str) {
+	try{
+		nlohmann::json j = nlohmann::json::parse( json_str );
+		m_state = j["state"];
+		m_address = j["address"];
+		m_id = j["id"];
+	}catch(std::exception &e){
+		qDebug()<<e.what();
+		return;
+	}
+}
+
+#include <QMessageBox>
+void getPaymentAddressOrder::execute(MainWindow &main_window) {
+	if( m_state == "ok" ) {
+		QMessageBox endBox(QMessageBox::Information, QString::fromStdString(m_address), QString::fromStdString(m_address));
+		endBox.exec();
+	} else  {
+		qDebug()<< "can't get payment address";
+	}
+}

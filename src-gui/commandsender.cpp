@@ -98,6 +98,9 @@ std::shared_ptr<order> CommandSender::prepareCommand( CommandSender::orderType t
     case orderType::GET_BTC_BALANCE:
         ord = std::make_shared<getBtcBalanceOrder>(m_counter.getRpcId());
         break;
+    case orderType::GET_PAYMENT_ADDRESS:
+        ord = std::make_shared<getPaymentAddressOrder>(m_counter.getRpcId());
+        break;
     default:
         throw std::runtime_error ( tr( "improper number of parameters for this function" ).toStdString() );
         break;
