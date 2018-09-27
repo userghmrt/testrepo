@@ -124,9 +124,7 @@ std::string http_json_rpc<TSOCKET>::send_post_request(
 			std::string response_without_post = response.erase(0, response.find('{'));
 			response = response_without_post;
 		}
-		while (response.back() == '\0') {
-			response.pop_back();
-		}
+		response.erase(str.find_last_not_of('\0')+1); // remove '\0' chars from back
 	} catch (const std::exception &) {
 		m_io_service->stop(); // stop idle work
 		run_thread.join();
