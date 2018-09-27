@@ -73,8 +73,8 @@ class invalid_argument_in_version : public std::invalid_argument {
 std::string project_version_info();
 
 constexpr int project_version_number_major{0};
-constexpr int project_version_number_minor{3};
-constexpr int project_version_number_sub{3};
+constexpr int project_version_number_minor{4};
+constexpr int project_version_number_sub{0};
 constexpr char project_version_number_patch{'a'};
-constexpr int project_version_number_progress{4};
+constexpr int project_version_number_progress{0};
 
