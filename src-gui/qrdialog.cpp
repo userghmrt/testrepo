@@ -7,6 +7,15 @@ QrDialog::QrDialog( const std::string &qr_code, QWidget *parent )
 {
 	ui->setupUi( this );
 	
+	SetQrCode( qr_code );
+}
+
+QrDialog::~QrDialog()
+{
+	delete ui;
+}
+
+void QrDialog::SetQrCode( const std::string &qr_code ) {
 	QRcode *qr = QRcode_encodeString( qr_code.c_str(), 1, QR_ECLEVEL_L, QR_MODE_8, 1 );
 	if( !qr )
 		throw std::runtime_error( "Invalid QR generation!!!" );
@@ -29,9 +38,4 @@ QrDialog::QrDialog( const std::string &qr_code, QWidget *parent )
 	m_scene.addPixmap( m_code );
 	ui->QrView->setScene( &m_scene );
 	ui->lblQrText->setText( QString::fromStdString( qr_code ));
-}
-
-QrDialog::~QrDialog()
-{
-    delete ui;
 }

@@ -21,6 +21,8 @@ public:
     explicit QrDialog( const std::string &qr_code, QWidget *parent = 0 );	//!
     ~QrDialog();
 
+    void SetQrCode( const std::string &qr_code );
+
 private:
     Ui::QrDialog *ui;
 };
