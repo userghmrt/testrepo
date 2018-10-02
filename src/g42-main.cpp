@@ -303,6 +303,8 @@ void main_print_flavour() {
 
 
 int main(int argc, const char * const * argv) { // the main() function
+// global try
+try {
 	// parse early options:
 	// this is done very early, we do not use console, nor boost program_options etc
 	string argt_exec = (argc>=1) ? argv[0] : ""; // exec name
@@ -450,5 +452,13 @@ int main(int argc, const char * const * argv) { // the main() function
 	bitcoin_node_cli::curl_initialized=false;
 
 	return exit_code;
-}
+} catch (const std::exception &e) {
+	pfp_erro( mo_file_reader::gettext("L_unhandled_exception") << ' '
+		<< e.what() << ' ' << mo_file_reader::gettext("L_exit_aplication") );
+	return -1;
+} catch (...) {
+	pfp_erro( mo_file_reader::gettext("L_unknown_exception_running_server") );
+	return -1;
+} // catch
+} // main
 
