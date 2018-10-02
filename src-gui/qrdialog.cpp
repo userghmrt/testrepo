@@ -1,6 +1,7 @@
 #include "qrdialog.h"
 #include "ui_qrdialog.h"
 #include <qrencode.h>
+#include <memory>
 
 QrDialog::QrDialog( const std::string &qr_code, QWidget *parent )
 :	QDialog( parent ), ui( new Ui::QrDialog )
@@ -16,7 +17,7 @@ QrDialog::~QrDialog()
 }
 
 void QrDialog::SetQrCode( const std::string &qr_code ) {
-	QRcode *qr = QRcode_encodeString( qr_code.c_str(), 1, QR_ECLEVEL_L, QR_MODE_8, 1 );
+	std::unique_ptr<QRcode, void(*)(QRcode*)> qr( QRcode_encodeString( qr_code.c_str(), 1, QR_ECLEVEL_M, QR_MODE_8, 1 ), QRcode_free );
 	if( !qr )
 		throw std::runtime_error( "Invalid QR generation!!!" );
 
@@ -32,8 +33,6 @@ void QrDialog::SetQrCode( const std::string &qr_code ) {
 					for( int j = 0; j < rect_size; j++ )
 						tmp.setPixelColor( xx*rect_size+i, yy*rect_size+j, Qt::black );
 	m_code = QPixmap::fromImage( tmp );
-
-	QRcode_free( qr );
 
 	m_scene.addPixmap( m_code );
 	ui->QrView->setScene( &m_scene );
