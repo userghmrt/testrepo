@@ -58,7 +58,8 @@ class http_json_rpc : public i_http_json_rpc_provider {
 		                               const std::string &ip,
 		                               unsigned short port,
 		                               const std::string &user,
-				const std::string &pass);
+		                               const std::string &pass
+		);
 };
 
 template<class TSOCKET>
@@ -91,12 +92,16 @@ std::string http_json_rpc<TSOCKET>::send_post_request(
 		boost::asio::ip::tcp::resolver resolver(*m_io_service);
 		std::future<boost::asio::ip::tcp::resolver::iterator> resolve_future = resolver.async_resolve(query, boost::asio::use_future);
 		status = resolve_future.wait_until(timeout_point);
+		// this throw happens when we timeout, there is a danger that in background a resolver still tries to use LOCAL VARIABLES.
+		// But this is OK, since we here catch this and do proper stop and join.
 		if (status != std::future_status::ready) throw std::runtime_error("send request timeout (resolve)");
 		boost::asio::ip::tcp::resolver::iterator endpoint_it = resolve_future.get();
 		
 		// connect
 		std::future<void> connect_future = m_socket->async_connect(*endpoint_it, boost::asio::use_future);
 		status = connect_future.wait_until(timeout_point);
+		// this throw, while in background resolver still tries to use LOCAL VARIABLES but TIMEOUTs on it - is ok,
+		// not UB, because we locally catch this throw below, and properly stop and join thread, see at end
 		if (status != std::future_status::ready) throw std::runtime_error("send request timeout (connect)");
 		
 		// write request
@@ -106,14 +111,16 @@ std::string http_json_rpc<TSOCKET>::send_post_request(
 							boost::asio::buffer(post_data.data(), post_data.size()),
 							boost::asio::use_future);
 		status = write_future.wait_until(timeout_point);
-		if (status != std::future_status::ready) throw std::runtime_error("send request timeout (write request)");
+		// this throw, while in background resolver still tries to use LOCAL VARIABLES but TIMEOUTs on it - is ok,
+		// not UB, because we locally catch this throw below, and properly stop and join thread, see at end		if (status != std::future_status::ready) throw std::runtime_error("send request timeout (write request)");
 		const size_t write_bytes = write_future.get();
 		pfp_dbg1("write " << write_bytes << " to bitcoin rpc");
 		
 		// read response
 		std::future<size_t> read_future = m_socket->async_read_some(boost::asio::buffer(&response[0], response.size()), boost::asio::use_future);
 		status = read_future.wait_until(timeout_point);
-		if (status != std::future_status::ready) throw std::runtime_error("send request timeout (read response)");
+		// this throw, while in background resolver still tries to use LOCAL VARIABLES but TIMEOUTs on it - is ok,
+		// not UB, because we locally catch this throw below, and properly stop and join thread, see at end	if (status != std::future_status::ready) throw std::runtime_error("send request timeout (read response)");
 		const size_t readed_bytes = read_future.get();
 		pfp_dbg1("readed " << readed_bytes << " from bitcoin rpc");
 		m_socket->close();
@@ -137,6 +144,8 @@ std::string http_json_rpc<TSOCKET>::send_post_request(
 
 template<class TSOCKET>
 std::string http_json_rpc<TSOCKET>::generate_post_data(const std::string &json, const std::string &ip, unsigned short port, const std::string &user, const std::string &pass) {
+	const std::string data_after_json = "\n";
+	const size_t message_size = json.size() + data_after_json.size();
 	std::string post_data;
 	post_data += "POST / HTTP/1.1\r\n";
 	post_data += "Host: " + ip + ":" + std::to_string(port) + "\r\n";
@@ -146,10 +155,10 @@ std::string http_json_rpc<TSOCKET>::generate_post_data(const std::string &json, 
 	post_data += "Accept: */*\r\n";
 	post_data += "Accept-Encoding: identity\r\n"; // rfc7231 Section 5.3.4 no compression
 	post_data += "Content-Type: application/json\r\n";
-	post_data += "Content-Length: " + std::to_string(json.size()) + "\r\n";
+	post_data += "Content-Length: " + std::to_string(message_size) + "\r\n";
 	post_data += "\r\n"; // new line
 	post_data += json;
-	post_data += "\n";
+	post_data += data_after_json;
 	return post_data;
 }
 
