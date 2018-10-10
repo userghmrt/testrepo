@@ -120,7 +120,7 @@ std::string http_json_rpc<TSOCKET>::send_post_request(
 		check_future("send request timeout (write request)");
 		const size_t write_bytes = write_future.get();
 		pfp_dbg1("write " << write_bytes << " to bitcoin rpc");
-		
+
 		// read response
 		std::future<size_t> read_future = m_socket->async_read_some(boost::asio::buffer(&response[0], response.size()), boost::asio::use_future);
 		status = read_future.wait_until(timeout_point);
