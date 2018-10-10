@@ -123,10 +123,10 @@ std::string http_json_rpc<TSOCKET>::send_post_request(
 		// this throw, while in background resolver still tries to use LOCAL VARIABLES but TIMEOUTs on it - is ok,
 		// not UB, because we locally catch this throw below, and properly stop and join thread, see at end
 		if (status != std::future_status::ready) throw std::runtime_error("send request timeout (read response)");
-		const size_t readed_bytes = read_future.get();
-		pfp_dbg1("readed " << readed_bytes << " from bitcoin rpc");
+		const size_t read_bytes = read_future.get();
+		pfp_dbg1("read " << read_bytes << " from bitcoin rpc");
 		m_socket->close();
-		response.resize(readed_bytes);
+		response.resize(read_bytes);
 		// remove post header
 		if (!response.empty()) {
 			// no UB even if find returns npos
