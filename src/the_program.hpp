@@ -18,7 +18,6 @@ class c_the_program {
 		virtual void startup_data_dir(); ///< find the data dir, set install_dir_base
 		virtual void startup_locales_early(); ///< setup locales, e.g. mo_file_reader - very early, to have some standard locales
 		virtual void startup_locales_later(); ///< setup locales, e.g. mo_file_reader - a bit later, when e.g. debugging works normally
-		virtual void startup_curl(); ///< prepares library curl
 
 		virtual void init_library_sodium(); ///< init library
 
