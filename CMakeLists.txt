@@ -318,36 +318,6 @@ else()
 	set(SODIUM_LIB "sodium")
 endif()
 
-########################### CURL ###########################
-
-option(ENABLE_LIB_CURL "Enable libcurl and functions depending on it" OFF)
-
-if(ENABLE_LIB_CURL)
-	add_definitions(-DENABLE_LIB_CURL)
-	if(CURL_ROOT_DIR)
-		list( APPEND CMAKE_INCLUDE_PATH "${CURL_ROOT_DIR}/include")
-		list( APPEND CMAKE_LIBRARY_PATH "${CURL_ROOT_DIR}/lib")
-	endif()
-
-	find_package(CURL REQUIRED)
-	if (NOT CURL_FOUND)
-		if (MSVC)
-			message(STATUS "Add following argument for cmake:")
-			message(STATUS "    \"-DCURL_ROOT_DIR=path\to\curl/\"\n\n")
-		endif()
-		message(FATAL_ERROR "CURL REQUIRED AND NOT FOUND, NOW STOPPING")
-	else()
-		if(${CURL_VERSION_STRING})
-			message(STATUS "Curl version: " ${CURL_VERSION_STRING})
-		endif()
-	endif()
-	include_directories(SYSTEM ${CURL_INCLUDE_DIRS})
-	set(CURL_LIB "${CURL_LIBRARIES}")
-else()
-	remove_definitions(-DENABLE_LIB_CURL)
-	set(CURL_LIB "")
-endif()
-
 #add local gtest
 if (MSVC)
 	set(gtest_force_shared_crt ON CACHE BOOL "Enable gtest_force_shared_crt")
@@ -361,6 +331,9 @@ include_directories(depends/json/src)
 
 #add local CTPL
 include_directories(depends/CTPL)
+
+#add local cppcodec
+include_directories(depends/cppcodec)
 
 #add local backward-cpp for backtrace printing
 set(HAVE_BACKWARD 0)
@@ -506,7 +479,7 @@ set(LIBS_COMMON
 	${Boost_LIBRARIES} ${BOOST_LOCALE_LINK_LIB} ${BOOST_THREAD_LINK_LIB}
 	${PTHREAD_LIB} sodiumpp ${SODIUM_LIB} ${LIBS_OPTIONAL_CRYPTO_clean}
 	${LIB_OPTIONAL_CAPNG}
-	${MINGW_LIBRARIES} ${MSVC_LIRARIES} apigalaxy ${CURL_LIB}
+	${MINGW_LIBRARIES} ${MSVC_LIRARIES} apigalaxy
 )
 
 target_link_libraries(tunserver.elf

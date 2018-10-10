@@ -24,3 +24,6 @@
 [submodule "depends/libqrencode"]
 	path = depends/libqrencode
 	url = https://github.com/fukuchi/libqrencode.git
+[submodule "depends/cppcodec"]
+	path = depends/cppcodec
+	url = https://github.com/tplgy/cppcodec.git
