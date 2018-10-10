@@ -85,6 +85,10 @@ std::string http_json_rpc<TSOCKET>::send_post_request(
 	std::string response(max_response_size, '\0');
 	std::future_status status;
 	std::thread run_thread([this]{m_io_service->run();});
+	auto check_future = [&timeout, &status] (const std::string & throw_message) {
+		if (status != std::future_status::ready)
+			throw std::runtime_error(throw_message + " (" + to_string((duration_cast<seconds>(timeout)).count()) + " seconds");
+	};
 	try {
 		// resolve address
 		// TODO resolver should be teplate parameters
@@ -94,16 +98,16 @@ std::string http_json_rpc<TSOCKET>::send_post_request(
 		status = resolve_future.wait_until(timeout_point);
 		// this throw happens when we timeout, there is a danger that in background a resolver still tries to use LOCAL VARIABLES.
 		// But this is OK, since we here catch this and do proper stop and join.
-		if (status != std::future_status::ready) throw std::runtime_error("send request timeout (resolve)");
+		check_future("send request timeout (resolve)");
 		boost::asio::ip::tcp::resolver::iterator endpoint_it = resolve_future.get();
-		
+
 		// connect
 		std::future<void> connect_future = m_socket->async_connect(*endpoint_it, boost::asio::use_future);
 		status = connect_future.wait_until(timeout_point);
 		// this throw, while in background resolver still tries to use LOCAL VARIABLES but TIMEOUTs on it - is ok,
 		// not UB, because we locally catch this throw below, and properly stop and join thread, see at end
-		if (status != std::future_status::ready) throw std::runtime_error("send request timeout (connect)");
-		
+		check_future("send request timeout (connect)");
+
 		// write request
 		const std::string post_data = generate_post_data(json_request, ip, port, username, password);
 		std::future<size_t> write_future = boost::asio::async_write(
@@ -113,7 +117,7 @@ std::string http_json_rpc<TSOCKET>::send_post_request(
 		status = write_future.wait_until(timeout_point);
 		// this throw, while in background resolver still tries to use LOCAL VARIABLES but TIMEOUTs on it - is ok,
 		// not UB, because we locally catch this throw below, and properly stop and join thread, see at end
-		if (status != std::future_status::ready) throw std::runtime_error("send request timeout (write request)");
+		check_future("send request timeout (write request)");
 		const size_t write_bytes = write_future.get();
 		pfp_dbg1("write " << write_bytes << " to bitcoin rpc");
 		
@@ -122,7 +126,7 @@ std::string http_json_rpc<TSOCKET>::send_post_request(
 		status = read_future.wait_until(timeout_point);
 		// this throw, while in background resolver still tries to use LOCAL VARIABLES but TIMEOUTs on it - is ok,
 		// not UB, because we locally catch this throw below, and properly stop and join thread, see at end
-		if (status != std::future_status::ready) throw std::runtime_error("send request timeout (read response)");
+		check_future("send request timeout (read response)");
 		const size_t read_bytes = read_future.get();
 		pfp_dbg1("read " << read_bytes << " from bitcoin rpc");
 		m_socket->close();
