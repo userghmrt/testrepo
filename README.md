@@ -62,7 +62,28 @@ For more details, including correct naming and **glossary**, and advanced techni
 ## Release notes
 
 ### Version v0.4.0a (alpha)
-* WORK IN PROGRESS (TODO remove when release is ready)
+
+CHANGELOG
+bitcoin RPC use
+[gitian][linux] static link libsodium
+add performance tests
+add benchamrks for network and tun
+add new RPC commands:
+rpc_btc_get_address
+add libcurl
+fix clocale initialization
+add openwrt support
+fix support .mo translation files
+update translation files for install.sh script
+add pfp prefix to our debug system macros(fix UB)
+[GUI] fix segfault (bad exception catching)
+[GUI] add QRcode support
+[GUI] add cmake build system
+added systemd services and config files for Arch Linux
+[GUI] change project website
+[GUI] fix finding virtual ipv6
+add --tun-missing-ok argument (linux only)
+search for data dir also in ../ from build
 
 Older release notes are in [Changelog.md](Changelog.md).
 
