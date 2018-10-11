@@ -63,27 +63,35 @@ For more details, including correct naming and **glossary**, and advanced techni
 
 ### Version v0.4.0a (alpha)
 
-CHANGELOG
-bitcoin RPC use
-[gitian][linux] static link libsodium
-add performance tests
-add benchamrks for network and tun
-add new RPC commands:
-rpc_btc_get_address
-add libcurl
-fix clocale initialization
-add openwrt support
-fix support .mo translation files
-update translation files for install.sh script
-add pfp prefix to our debug system macros(fix UB)
-[GUI] fix segfault (bad exception catching)
-[GUI] add QRcode support
-[GUI] add cmake build system
-added systemd services and config files for Arch Linux
-[GUI] change project website
-[GUI] fix finding virtual ipv6
-add --tun-missing-ok argument (linux only)
-search for data dir also in ../ from build
+* bitcoin (onchain) support
+  * ability to use Bitcoin Core Wallet via RPC
+  * using own mini RPC library (not using libcurl, though that was a plan for a moment)
+  * Yedino RPC command `rpc_btc_get_address`
+* add performance tests
+  * add benchmarks for network and tun
+  * many small tools
+  * including tool: raw send
+  * including tool: high-level wire tests, with IRQ pinning and thread pinning to CPU cores
+  * maybe more tools
+  * lots of tests and tests results (in wiki and in other docs)
+* fixes
+  * fix clocale initialization
+  * fix support .mo translation files (files search on init for build dir?)
+* porting
+	* gitian: static link libsodium
+  * linux without TUN: added `--tun-missing-ok 1` argument (linux only)
+  * add openwrt support (link to wiki explaning how to; possible changes in code if were needed, works)
+  * added systemd services and config files for Arch Linux
+* translations and co
+  * update translation files for install.sh script
+* refactoring
+  * add pfp prefix to our debug system macros (fix potential UB)
+* GUI
+  * fix segfault (bad exception catching)
+  * add QRcode support (for BTC address)
+  * add cmake build system for GUI
+  * change project website
+  * fix finding virtual ipv6
 
 Older release notes are in [Changelog.md](Changelog.md).
 
