@@ -100,6 +100,31 @@ def build_msvc = {
     //bat "msbiuld tunserver.elf.vcxproj"
     bat "\"C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\MSBuild\\15.0\\Bin\\MSBuild.exe\" tunserver.elf.vcxproj"
 }
+
+def run_unittests = {
+    echo 'Build unittests'
+    sh "git submodule update --init --recursive"
+    sh "cmake ."
+    sh "make unittests.elf -j2"
+    sh "./unittests.elf --gtest_filter=*-privileges.*:utility.parse_ip_number:time_utils.daylight_saving"
+}
+
+def run_unittests_thread_ub = {
+    echo 'Build unittests thread ub'
+    sh "git submodule update --init --recursive"
+    sh "cmake  -D CMAKE_C_COMPILER=clang -D CMAKE_CXX_COMPILER=clang++ -D SANITIZER_THREAD=ON -D SANITIZER_UNDEFINED_BEHAVIOR=ON."
+    sh "make -j2"
+    sh "./qa/run-safe/run-safe-thread-ub TESTS --gtest_filter=*-privileges.*:utility.parse_ip_number:time_utils.daylight_saving"
+}
+
+def run_unittests_safe_memory = {
+    echo 'Build unittests safe memory'
+    sh "git submodule update --init --recursive"
+    sh "cmake  -D CMAKE_C_COMPILER=clang -D CMAKE_CXX_COMPILER=clang++ -D SANITIZER_THREAD=ON -D SANITIZER_UNDEFINED_BEHAVIOR=ON."
+    sh "make -j2"
+    sh "./qa/run-safe/run-safe-mem TESTS --gtest_filter=*-privileges.*:*abort*:utils_wrap_thread.*:utility.parse_ip_number:time_utils.daylight_saving"
+}
+
 ////////////////////////////////////////////////////////////////
 
 stage('Build') {
