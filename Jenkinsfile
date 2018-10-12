@@ -212,6 +212,42 @@ stage('Build') {
                     }
                     sh "git clean -fdx"
                 } // stange
+                stage('Run Unittests') {
+                    try {
+                        updateGitlabCommitStatus name: 'Run Unittests', state: 'pending'
+                        run_unittests()
+                        currentBuild.result = 'SUCCESS'
+                        updateGitlabCommitStatus name: 'Run Unittests', state: 'success'
+                    } catch (all) {
+                        currentBuild.result = 'FAILURE'
+                        updateGitlabCommitStatus name: 'Run Unittests', state: 'failed'
+                    }
+                    sh "git clean -fdx"
+                } // stage
+                stage('Run Unittests thread ub') {
+                    try {
+                        updateGitlabCommitStatus name: 'Run Unittests thread ub', state: 'pending'
+                        run_unittests_thread_ub()
+                        currentBuild.result = 'SUCCESS'
+                        updateGitlabCommitStatus name: 'Run Unittests thread ub', state: 'success'
+                    } catch (all) {
+                        currentBuild.result = 'FAILURE'
+                        updateGitlabCommitStatus name: 'Run Unittests thread ub', state: 'failed'
+                    }
+                    sh "git clean -fdx"
+                } // stage
+                stage('Run Unittests safe memory') {
+                    try {
+                        updateGitlabCommitStatus name: 'Run Unittests safe memory', state: 'pending'
+                        run_unittests_safe_memory()
+                        currentBuild.result = 'SUCCESS'
+                        updateGitlabCommitStatus name: 'Run Unittests safe memory', state: 'success'
+                    } catch (all) {
+                        currentBuild.result = 'FAILURE'
+                        updateGitlabCommitStatus name: 'Run Unittests safe memory', state: 'failed'
+                    }
+                    sh "git clean -fdx"
+                } // stage
                 deleteDir()
             }
         }// node master
