@@ -87,7 +87,7 @@ std::string http_json_rpc<TSOCKET>::send_post_request(
 	std::thread run_thread([this]{m_io_service->run();});
 	auto check_future = [&timeout, &status] (const std::string & throw_message) {
 		if (status != std::future_status::ready)
-			throw std::runtime_error(throw_message + " (" + to_string((duration_cast<seconds>(timeout)).count()) + " seconds");
+			throw std::runtime_error(throw_message + " (" + std::to_string((std::chrono::duration_cast<std::chrono::seconds>(timeout)).count()) + " seconds");
 	};
 	try {
 		// resolve address
