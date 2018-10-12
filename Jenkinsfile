@@ -1,5 +1,12 @@
 #!/usr/bin/env groovy
 
+// new jenkinsfile for gitlab
+// last old jenkinsfile commit
+// commit 3303304be14d3637fb5aea3339c2ef9adc71f542
+// Merge: c4be227 33a3d24
+// Author: Tigusoft Admin <admin@tigusoft.pl>
+// Date:   Wed Oct 10 15:14:46 2018 +0100
+
 def handleCheckout = {
   if (env.gitlabMergeRequestId) {
     sh "echo 'Merge request detected. Merging...'"
@@ -62,32 +69,28 @@ def build_clang = {
     echo 'Build using clang'
     sh "git submodule update --init --recursive"
     sh "cmake  -D CMAKE_C_COMPILER=clang -D CMAKE_CXX_COMPILER=clang++ ."
-    sh "make -j4"
-    echo 'Running test...'
+    sh "make -j4 tunserver.elf"
 }
 
 def build_gcc = {
     echo 'Build using gcc'
     sh "git submodule update --init --recursive"
     sh "cmake  -D CMAKE_C_COMPILER=gcc -D CMAKE_CXX_COMPILER=g++ ."
-    sh "make -j4"
-    echo 'Running test...'
+    sh "make -j4 tunserver.elf"
 }
 
 def build_cygwin_64bit = {
     echo 'Build using cygwin 64bit compiler'
     sh "git submodule update --init --recursive"
     sh "cmake -DCMAKE_TOOLCHAIN_FILE=cmake/toolchain_cygwin_64bit.cmake.in ."
-    sh "make -j4"
-    echo 'Running test...'
+    sh "make -j4 tunserver.elf"
 }
 
 def build_cygwin_32bit = {
     echo 'Build using cygwin 32bit compiler'
     sh "git submodule update --init --recursive"
     sh "cmake -DCMAKE_TOOLCHAIN_FILE=cmake/toolchain_cygwin_32bit.cmake.in ."
-    sh "make -j4"
-    echo 'Running test...'
+    sh "make -j4 tunserver.elf"
 }
 
 def build_msvc = {
@@ -137,21 +140,19 @@ stage('Build') {
                     }
                     sh "git clean -fdx"
                 } // stange
-                
                 stage('Build cygwin32') {
                     try {
-                        //gitlabCommitStatus("Build cygwin 32bit") {
                         updateGitlabCommitStatus name: 'Build cygwin32', state: 'pending'
-                            build_cygwin_32bit()
-                            currentBuild.result = 'SUCCESS'
+                        build_cygwin_32bit()
+                        currentBuild.result = 'SUCCESS'
                         updateGitlabCommitStatus name: 'Build cygwin32', state: 'success'
-                        //}
                     } catch (all) {
                         currentBuild.result = 'FAILURE'
                         updateGitlabCommitStatus name: 'Build cygwin32', state: 'failed'
                     }
-                    deleteDir()
+                    sh "git clean -fdx"
                 } // stange
+                deleteDir()
             }
         }
     },
@@ -184,8 +185,9 @@ stage('Build') {
                         currentBuild.result = 'FAILURE'
                         updateGitlabCommitStatus name: 'Build debian gcc', state: 'failed'
                     }
-                    deleteDir()
+                    sh "git clean -fdx"
                 } // stange
+                deleteDir()
             }
         }// node master
     },
@@ -205,8 +207,8 @@ stage('Build') {
                     currentBuild.result = 'FAILURE'
                     updateGitlabCommitStatus name: 'Build mac', state: 'failed'
                 }
-                deleteDir()
-                } // stange
+            } // stange
+            deleteDir()
             }
         } // node mac
     }
