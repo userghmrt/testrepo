@@ -96,7 +96,8 @@ std::string http_json_rpc<TSOCKET>::send_post_request(
 		// TODO resolver should be teplate parameters
 		boost::asio::ip::tcp::resolver::query query(ip, std::to_string(port));
 		boost::asio::ip::tcp::resolver resolver(*m_io_service);
-		std::future<boost::asio::ip::tcp::resolver::iterator> resolve_future = resolver.async_resolve(query, boost::asio::use_future);
+		//std::future<boost::asio::ip::tcp::resolver::iterator> resolve_future = resolver.async_resolve(query, boost::asio::use_future);
+		auto resolve_future = resolver.async_resolve(query, boost::asio::use_future);
 		status = resolve_future.wait_until(timeout_point);
 		// this throw happens when we timeout, there is a danger that in background a resolver still tries to use LOCAL VARIABLES.
 		// But this is OK, since we here catch this and do proper stop and join.
