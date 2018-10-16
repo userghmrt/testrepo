@@ -61,48 +61,37 @@ For more details, including correct naming and **glossary**, and advanced techni
 
 ## Release notes
 
-### Version v0.3.3a (pre-alpha)
+### Version v0.4.0a (alpha)
 
-* Summary: multi-threading tools, tests, network model, utils; RPC commands, and GUI, fixes.
-* Warnings:
-  * Macosx Gitian process is not working in this release (fix in next one).
-  * Do not use Bitcoin support, nor GUI, it's just an experiment.
-* Draft of Bitcoin RPC interaction (do NOT use for anything other then testnet!!).
-  * RPC commands for Bitcoin: `get_status` `pay` `set_account`.
-  * GUI: RPC connect timeout changes, more errors supported.
-  * GUI: text for Bitcoin status/ballance; Audio sound.
-* GUI.
- * Basic GUI works, but is for testing from source code (is not connected to build system).
-  * Connecting to RPC (not encrypted yet!).
-  * Adding peers.
-  * work started on address book
-  * started work on showing coin address ballance from RPC (might not work now!)
-* Creating netmodel.
- * Multi-thread netmodel.
- * Multi-thread isolated crypto tests.
-* Creating utils to test network speed.
- * Sender program, with remote RPC.
-* Tokens
- * Started simple example of checking ballance (via RPC) of bitcoind.
-* Deps
- * Updated external libraries.
-* Fixes
- * Possible race in RPC, in 13f3eaf0d73f3e48db3892bf11d4956f67a4cd1f
- * Fix building in build/ or in top-dir, with proper copy of some files, see 6e3a3a75ac758eb1886b0c026d67ecd16064d75f
- * Working --set-prefix (to build oldnet)
-* Bench / netmodel
- * starting on medium level tests (python, gnuplot)
- * starting high-level big test
- * many tests added (only-crypto, and various wire-tun-crypto tests)
-* Porting
- * Started BSD/FreeBSD port (tuntap stump)
- * Jenkins: build Macosx and GUI.
-* Code
- * Affinity mini lib.
- * Fixed some C++ warnings.
-* Last release of 2017 year.
- * In memory of our small friend who kept us company (bitcoin, antinet); Lila (2010-2017).
- * We wish everyone a Marry Christmas, and happy end of 2017 year.
+* bitcoin (onchain) support
+  * ability to use Bitcoin Core Wallet via RPC
+  * using own mini RPC library (not using libcurl, though that was a plan for a moment)
+  * Yedino RPC command `rpc_btc_get_address`
+* add performance tests
+  * add benchmarks for network and tun
+  * many small tools
+  * including tool: raw send
+  * including tool: high-level wire tests, with IRQ pinning and thread pinning to CPU cores
+  * maybe more tools
+  * lots of tests and tests results (in wiki and in other docs)
+* fixes
+  * fix clocale initialization
+  * fix support .mo translation files (files search on init for build dir?)
+* porting
+	* gitian: static link libsodium
+  * linux without TUN: added `--tun-missing-ok 1` argument (linux only)
+  * add openwrt support (link to wiki explaning how to; possible changes in code if were needed, works)
+  * added systemd services and config files for Arch Linux
+* translations and co
+  * update translation files for install.sh script
+* refactoring
+  * add pfp prefix to our debug system macros (fix potential UB)
+* GUI
+  * fix segfault (bad exception catching)
+  * add QRcode support (for BTC address)
+  * add cmake build system for GUI
+  * change project website
+  * fix finding virtual ipv6
 
 Older release notes are in [Changelog.md](Changelog.md).
 

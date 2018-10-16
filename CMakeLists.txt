@@ -17,8 +17,6 @@ endif()
 
 ########################### CMAKE MODULES ###########################
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/depends/cotire/CMake")
-include(cotire)
 
 if(MINGW)
 	add_definitions(-D_GLIBCXX_USE_CXX11_ABI=1)
@@ -476,9 +474,6 @@ endif ()
 add_library(apigalaxy ${SOURCES_API_GALAXY})
 
 add_executable(tunserver.elf src/g42-main.cpp ${SOURCES_GROUP_TUNSERVER} ${SOURCES_GROUP_TOOLS_NETMODEL} ${SOURCES_GROUP_CRYPTO} ${SOURCES_GROUP_RPC})
-if (NOT MSVC) #TODO
-	cotire(tunserver.elf)
-endif()
 
 set(LIBS_COMMON
 	${Boost_LIBRARIES} ${BOOST_LOCALE_LINK_LIB} ${BOOST_THREAD_LINK_LIB}

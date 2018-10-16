@@ -10,6 +10,7 @@ dir_top="."
 [ -r "${dir_top}/toplevel" ] || { echo "Run this (script $0) while being in the top-level directory; Can't find 'toplevel' in PWD=$PWD"; exit 1; }
 
 set -x
+source "${dir_top}/contrib/gitian-descriptors/gitian_global-variables" # get global variables
 project_name="galaxy42"
 
 # determine if pack_type is gitian. gitian requires to use wrapped tar and gzip
@@ -22,7 +23,7 @@ else
     prog_path="" # use global programs
 fi
 
-echo "$0: working on project_name=$project_name pack_type=${pack_type}; OUTDIR=$OUTDIR TAR_OPTIONS=$TAR_OPTIONS"
+echo "$0: working on project_name=$project_name pack_type=${pack_type}; OUTDIR=$OUTDIR"
 
 outname="${project_name}-static" # name of project release/output
 outname_tgz="${outname}.tar.gz" # name of project release/output
@@ -50,7 +51,7 @@ pushd "$dir_pack_wrap" || fail
 	rm -f "$outname_tgz"
 	echo "Quick sum of all files to be packed:"
 	sha1sum $(find "$outname" | sort) | sha1sum -
-	echo "Packing, from outname=$outname to $outname_tgz, with TAR_OPTIONS=$TAR_OPTIONS in PWD=$PWD"
+	echo "Packing, from outname=$outname to $outname_tgz in PWD=$PWD"
 	find "$outname" | sort | ${prog_path}tar --no-recursion --mode='u+rw,go+r-w,a+X' \
 		--owner=0 --group=0 -c \
 		-T - | ${prog_path}gzip -9n > "${outname_tgz}" || fail "Can not compress"
