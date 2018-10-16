@@ -333,7 +333,7 @@ include_directories(depends/json/src)
 include_directories(depends/CTPL)
 
 #add local cppcodec
-include_directories(SYSTEM depends/cppcodec)
+include_directories(SYSTEM depends/cppcodec) # we need to include this as SYSTEM, because it has lots of warnings - so SYSTEM disables that as workaround
 
 #add local backward-cpp for backtrace printing
 set(HAVE_BACKWARD 0)
