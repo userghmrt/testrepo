@@ -787,18 +787,20 @@ void c_tunserver::prepare_socket() {
 
 		pfp_fact("Will configure the tun device");
 		try {
-			try {
-				m_tun_device.init();
-			} catch(const tuntap_error_devtun &ex) {
+			auto func_tun_error = [this]() { // use it in tun catch expressions to rethrow, or if this lambda returns thenyou must exit current function
 				if (m_tun_allow_init_failure) {
 					pfp_warn("Can not initialize TUN/TAP, but options say to ignore this - so will continue without TUN/TAP."); // TODO@lang
 					m_event_manager.init_without_tun();
-					return; // <=== return
+					return; // (the caller lambda use must return from main function)
 				}
-				else throw;
-			}
-			m_tun_device.set_ipv6_address(address, m_prefix_len);
-			m_tun_device.set_mtu(1304);
+				else throw; // a rethrow
+			} ;
+
+			try {
+				m_tun_device.init();
+				m_tun_device.set_ipv6_address(address, m_prefix_len);
+				m_tun_device.set_mtu(1304);
+			} catch(const tuntap_error &ex) { func_tun_error();  }
 
 			pfp_fact("Done init of event manager - for this tuntap");
 			m_event_manager.init(); // because now we have the tuntap fully ready (with the fd)

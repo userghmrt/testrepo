@@ -86,15 +86,16 @@ std::string http_json_rpc<TSOCKET>::send_post_request(
 	std::future_status status;
 	std::thread run_thread([this]{m_io_service->run();});
 	auto check_future = [&timeout, &status] (const std::string & throw_message) {
-		if (status != std::future_status::ready)
-			throw std::runtime_error(throw_message + " (" + std::to_string((std::chrono::duration_cast<std::chrono::seconds>(timeout)).count()) + " seconds");
+		if (status != std::future_status::ready) {
+			auto seconds_int = (std::chrono::duration_cast<std::chrono::seconds>(timeout)).count() ;
+			throw std::runtime_error(throw_message + " (" + std::to_string(seconds_int) + " seconds");
+		}
 	};
 	try {
 		// resolve address
 		// TODO resolver should be teplate parameters
 		boost::asio::ip::tcp::resolver::query query(ip, std::to_string(port));
 		boost::asio::ip::tcp::resolver resolver(*m_io_service);
-		//std::future<boost::asio::ip::tcp::resolver::iterator> resolve_future = resolver.async_resolve(query, boost::asio::use_future);
 		auto resolve_future = resolver.async_resolve(query, boost::asio::use_future);
 		status = resolve_future.wait_until(timeout_point);
 		// this throw happens when we timeout, there is a danger that in background a resolver still tries to use LOCAL VARIABLES.
