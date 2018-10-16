@@ -1,7 +1,8 @@
 #!/usr/bin/env groovy
 
-// new jenkinsfile for gitlab
-// last old jenkinsfile commit
+// This is the new jenkinsfile (for gitlab).
+//
+// The last old jenkinsfile (for github.com) was in commit:
 // commit 3303304be14d3637fb5aea3339c2ef9adc71f542
 // Merge: c4be227 33a3d24
 // Author: Tigusoft Admin <admin@tigusoft.pl>
@@ -133,16 +134,16 @@ stage('Build') {
             stage('checkout') {
                 setup()
             }
-            gitlabBuilds(builds: ["Build MSVC"]) {
-                stage('Build MSVC') {
+            gitlabBuilds(builds: ["Build_MSVC"]) {
+                stage('Build_MSVC') {
                     try {
-                        updateGitlabCommitStatus name: 'Build MSVC', state: 'pending'
+                        updateGitlabCommitStatus name: 'Build_MSVC', state: 'pending'
                             build_msvc()
                             currentBuild.result = 'SUCCESS'
-                        updateGitlabCommitStatus name: 'Build MSVC', state: 'success'
+                        updateGitlabCommitStatus name: 'Build_MSVC', state: 'success'
                     } catch (all) {
                         currentBuild.result = 'FAILURE'
-                        updateGitlabCommitStatus name: 'Build MSVC', state: 'failed'
+                        updateGitlabCommitStatus name: 'Build_MSVC', state: 'failed'
                     }
                     deleteDir()
                 } // stange
@@ -152,28 +153,28 @@ stage('Build') {
             stage('checkout') {
                     setup()
             }
-            gitlabBuilds(builds: ["Build cygwin64", "Build cygwin32"]) {
-                stage('Build cygwin64') {
+            gitlabBuilds(builds: ["Build_cygwin64", "Build_cygwin32"]) {
+                stage('Build_cygwin64') {
                     try {
-                        updateGitlabCommitStatus name: 'Build cygwin64', state: 'pending'
+                        updateGitlabCommitStatus name: 'Build_cygwin64', state: 'pending'
                         build_cygwin_64bit()
                         currentBuild.result = 'SUCCESS'
-                        updateGitlabCommitStatus name: 'Build cygwin64', state: 'success'
+                        updateGitlabCommitStatus name: 'Build_cygwin64', state: 'success'
                     } catch (all) {
                         currentBuild.result = 'FAILURE'
-                        updateGitlabCommitStatus name: 'Build cygwin64', state: 'failed'
+                        updateGitlabCommitStatus name: 'Build_cygwin64', state: 'failed'
                     }
                     sh "git clean -fdx"
                 } // stange
-                stage('Build cygwin32') {
+                stage('Build_cygwin32') {
                     try {
-                        updateGitlabCommitStatus name: 'Build cygwin32', state: 'pending'
+                        updateGitlabCommitStatus name: 'Build_cygwin32', state: 'pending'
                         build_cygwin_32bit()
                         currentBuild.result = 'SUCCESS'
-                        updateGitlabCommitStatus name: 'Build cygwin32', state: 'success'
+                        updateGitlabCommitStatus name: 'Build_cygwin32', state: 'success'
                     } catch (all) {
                         currentBuild.result = 'FAILURE'
-                        updateGitlabCommitStatus name: 'Build cygwin32', state: 'failed'
+                        updateGitlabCommitStatus name: 'Build_cygwin32', state: 'failed'
                     }
                     sh "git clean -fdx"
                 } // stange
@@ -187,64 +188,64 @@ stage('Build') {
             stage('checkout') {
                     setup()
             }
-            gitlabBuilds(builds: ["Build debian clang", "Build debian gcc"]) {
+            gitlabBuilds(builds: ["Build_debian_clang", "Build_debian_gcc"]) {
                 stage('Build debian clang') {
                     try {
-                        updateGitlabCommitStatus name: 'Build debian clang', state: 'pending'
+                        updateGitlabCommitStatus name: 'Build_debian_clang', state: 'pending'
                         build_clang()
                         currentBuild.result = 'SUCCESS'
-                        updateGitlabCommitStatus name: 'Build debian clang', state: 'success'
+                        updateGitlabCommitStatus name: 'Build_debian_clang', state: 'success'
                     } catch (all) {
                         currentBuild.result = 'FAILURE'
-                        updateGitlabCommitStatus name: 'Build debian clang', state: 'failed'
+                        updateGitlabCommitStatus name: 'Build_debian_clang', state: 'failed'
                     }
                     sh "git clean -fdx"
                 } // stange
-                stage('Build debian gcc') {
+                stage('Build_debian_gcc') {
                     try {
-                        updateGitlabCommitStatus name: 'Build debian gcc', state: 'pending'
+                        updateGitlabCommitStatus name: 'Build_debian_gcc', state: 'pending'
                         build_gcc()
                         currentBuild.result = 'SUCCESS'
-                        updateGitlabCommitStatus name: 'Build debian gcc', state: 'success'
+                        updateGitlabCommitStatus name: 'Build_debian_gcc', state: 'success'
                     } catch (all) {
                         currentBuild.result = 'FAILURE'
-                        updateGitlabCommitStatus name: 'Build debian gcc', state: 'failed'
+                        updateGitlabCommitStatus name: 'Build_debian_gcc', state: 'failed'
                     }
                     sh "git clean -fdx"
                 } // stange
-                stage('Run Unittests') {
+                stage('Run_Unittests') {
                     try {
-                        updateGitlabCommitStatus name: 'Run Unittests', state: 'pending'
+                        updateGitlabCommitStatus name: 'Run_Unittests', state: 'pending'
                         run_unittests()
                         currentBuild.result = 'SUCCESS'
-                        updateGitlabCommitStatus name: 'Run Unittests', state: 'success'
+                        updateGitlabCommitStatus name: 'Run_Unittests', state: 'success'
                     } catch (all) {
                         currentBuild.result = 'FAILURE'
-                        updateGitlabCommitStatus name: 'Run Unittests', state: 'failed'
+                        updateGitlabCommitStatus name: 'Run_Unittests', state: 'failed'
                     }
                     sh "git clean -fdx"
                 } // stage
-                stage('Run Unittests thread ub') {
+                stage('Run_Unittests_thread_ub') {
                     try {
-                        updateGitlabCommitStatus name: 'Run Unittests thread ub', state: 'pending'
+                        updateGitlabCommitStatus name: 'Run_Unittests_thread_ub', state: 'pending'
                         run_unittests_thread_ub()
                         currentBuild.result = 'SUCCESS'
-                        updateGitlabCommitStatus name: 'Run Unittests thread ub', state: 'success'
+                        updateGitlabCommitStatus name: 'Run_Unittests_thread_ub', state: 'success'
                     } catch (all) {
                         currentBuild.result = 'FAILURE'
-                        updateGitlabCommitStatus name: 'Run Unittests thread ub', state: 'failed'
+                        updateGitlabCommitStatus name: 'Run_Unittests_thread_ub', state: 'failed'
                     }
                     sh "git clean -fdx"
                 } // stage
-                stage('Run Unittests safe memory') {
+                stage('Run_Unittests_safe_memory') {
                     try {
-                        updateGitlabCommitStatus name: 'Run Unittests safe memory', state: 'pending'
+                        updateGitlabCommitStatus name: 'Run_Unittests_safe_memory', state: 'pending'
                         run_unittests_safe_memory()
                         currentBuild.result = 'SUCCESS'
-                        updateGitlabCommitStatus name: 'Run Unittests safe memory', state: 'success'
+                        updateGitlabCommitStatus name: 'Run_Unittests_safe_memory', state: 'success'
                     } catch (all) {
                         currentBuild.result = 'FAILURE'
-                        updateGitlabCommitStatus name: 'Run Unittests safe memory', state: 'failed'
+                        updateGitlabCommitStatus name: 'Run_Unittests_safe_memory', state: 'failed'
                     }
                     sh "git clean -fdx"
                 } // stage
@@ -257,16 +258,16 @@ stage('Build') {
         stage('setup') {
                 setup()
         }
-        gitlabBuilds(builds: ["Build mac"]) {
-            stage('Build mac') {
+        gitlabBuilds(builds: ["Build_mac"]) {
+            stage('Build_mac') {
                 try {
-                    updateGitlabCommitStatus name: 'Build mac', state: 'pending'
+                    updateGitlabCommitStatus name: 'Build_mac', state: 'pending'
                     build_clang()
                     currentBuild.result = 'SUCCESS'
-                    updateGitlabCommitStatus name: 'Build mac', state: 'success'
+                    updateGitlabCommitStatus name: 'Build_mac', state: 'success'
                 } catch (all) {
                     currentBuild.result = 'FAILURE'
-                    updateGitlabCommitStatus name: 'Build mac', state: 'failed'
+                    updateGitlabCommitStatus name: 'Build_mac', state: 'failed'
                 }
             } // stange
             deleteDir()
