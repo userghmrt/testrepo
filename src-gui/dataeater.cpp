@@ -47,9 +47,12 @@ void dataeater::continiueProcessing() {
 }
 
 std::string dataeater::getLastCommand() {
-    if( m_commands_list.empty() ) {
-        return std::string();
-    }
-    return std::string( m_commands_list.back() );
+	if( m_commands_list.empty() ) {
+		return std::string();
+	}
+	std::string ret = m_commands_list.front();
+	m_commands_list.pop();
+	continiueProcessing();
+	return ret;
 }
 
