@@ -98,7 +98,6 @@ def build_msvc = {
     echo 'Build using MSVC compiler'
     bat "git submodule update --init --recursive"
     bat "cmake -G \"Visual Studio 15 2017 Win64\" -DBOOST_LIBRARYDIR=\"C:\\msvc2017_libs\\boost_1_64_0\\lib64-msvc-14.1\" -DSODIUM_ROOT_DIR=\"C:\\msvc2017_libs\\libsodium-1.0.13\" -DBOOST_ROOT=\"C:\\msvc2017_libs\\boost_1_64_0\" -DSODIUM_LIBRARY=\"C:\\msvc2017_libs\\libsodium-1.0.13\\x64\\Debug\\v141\\dynamic\\libsodium.lib\" ."
-    //bat "msbiuld tunserver.elf.vcxproj"
     bat "\"C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\MSBuild\\15.0\\Bin\\MSBuild.exe\" tunserver.elf.vcxproj"
 }
 
@@ -113,7 +112,7 @@ def run_unittests = {
 def run_unittests_thread_ub = {
     echo 'Build unittests thread ub'
     sh "git submodule update --init --recursive"
-    sh "cmake  -D CMAKE_C_COMPILER=clang -D CMAKE_CXX_COMPILER=clang++ -D SANITIZER_THREAD=ON -D SANITIZER_UNDEFINED_BEHAVIOR=ON."
+    sh "cmake  -D CMAKE_C_COMPILER=clang -D CMAKE_CXX_COMPILER=clang++ -D SANITIZER_THREAD=ON -D SANITIZER_UNDEFINED_BEHAVIOR=ON ."
     sh "make -j2"
     sh "./qa/run-safe/run-safe-thread-ub TESTS --gtest_filter=*-privileges.*:utility.parse_ip_number:time_utils.daylight_saving"
 }
@@ -121,7 +120,7 @@ def run_unittests_thread_ub = {
 def run_unittests_safe_memory = {
     echo 'Build unittests safe memory'
     sh "git submodule update --init --recursive"
-    sh "cmake  -D CMAKE_C_COMPILER=clang -D CMAKE_CXX_COMPILER=clang++ -D SANITIZER_THREAD=ON -D SANITIZER_UNDEFINED_BEHAVIOR=ON."
+    sh "cmake  -D CMAKE_C_COMPILER=clang -D CMAKE_CXX_COMPILER=clang++ ."
     sh "make -j2"
     sh "./qa/run-safe/run-safe-mem TESTS --gtest_filter=*-privileges.*:*abort*:utils_wrap_thread.*:utility.parse_ip_number:time_utils.daylight_saving"
 }
@@ -188,8 +187,8 @@ stage('Build') {
             stage('checkout') {
                     setup()
             }
-            gitlabBuilds(builds: ["Build_debian_clang", "Build_debian_gcc"]) {
-                stage('Build debian clang') {
+            gitlabBuilds(builds: ["Build_debian_clang", "Build_debian_gcc", "Run_Unittests" , "Run_Unittests_thread_ub" , "Run_Unittests_safe_memory"]) {
+                stage('Build_debian_clang') {
                     try {
                         updateGitlabCommitStatus name: 'Build_debian_clang', state: 'pending'
                         build_clang()
