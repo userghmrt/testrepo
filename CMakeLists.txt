@@ -290,7 +290,7 @@ if (BUILD_STATIC_TUNSERVER)
 	set (sodium_USE_STATIC_LIBS ON)
 endif()
 find_package(Sodium)
-#link_directories(/home/ubuntu/build/libsodium/libsodium-osx/lib/) # for gitian build
+link_directories(/home/ubuntu/build/libsodium/libsodium-osx/lib/) # for gitian build
 
 if (NOT SODIUM_FOUND)
 	message("\nSODIUM NOT FOUND!")
