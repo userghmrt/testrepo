@@ -68,7 +68,8 @@ void netClient::onTcpReceive() {
     std::string arr( data_array.data(), static_cast<size_t>( data_array.size() ) );
     m_data_eater.eat( arr );
     std::string last_cmd = m_data_eater.getLastCommand(); // last cmd == cmd + authenticator
-    if ( !last_cmd.empty() ) {
+
+	while( !last_cmd.empty() ) {
         if ( !check_auth( last_cmd ) ) {
             qDebug() << "message auth error, drop connection";
             m_socket->abort();
@@ -78,6 +79,7 @@ void netClient::onTcpReceive() {
         qDebug() << "last command " << QString::fromStdString( last_cmd );
         auto cmd_exec_ptr = m_cmd_exec;//.lock();
         cmd_exec_ptr->parseAndExecMsg( last_cmd );
+        last_cmd = m_data_eater.getLastCommand(); // last cmd == cmd + authenticator
     }
 }
 

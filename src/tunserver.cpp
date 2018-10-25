@@ -556,6 +556,9 @@ c_tunserver::c_tunserver(int port, int rpc_port, const boost::program_options::v
 	m_rpc_server.add_rpc_function("get_btc_address", [this](const std::string &input_json) {
 		return rpc_btc_get_address(input_json);
 	});
+	m_rpc_server.add_rpc_function("get_btc_balance", [this](const std::string &input_json) {
+		return rpc_btc_get_balance(input_json);
+	});
 }
 
 boost::program_options::variables_map c_tunserver::get_default_early_argm() {
@@ -1336,6 +1339,21 @@ nlohmann::json c_tunserver::rpc_btc_get_address(const string &input_json)
 	return ret;
 }
 
+nlohmann::json c_tunserver::rpc_btc_get_balance(const string &input_json)
+{
+	nlohmann::json ret;
+	ret["cmd"] = "get_btc_balance";
+	try {
+		ret["state"] = "ok";
+		ret["balance"] = bitcoin_node_cli::get_instance().get_balance();
+	} catch (const std::exception &e) {
+		ret["state"] = "error";
+		ret["msg"] = e.what();
+		pfp_warn("rpc_btc_get_address error: " << e.what());
+	}
+	return ret;
+}
+
 bool c_tunserver::peer_on_black_list(const c_haship_addr &hip) {
 	LockGuard<Mutex> lg(m_peer_etc_mutex);
 	auto it = m_peer_black_list.find(hip); // check if peer is on balck list
@@ -1864,7 +1882,9 @@ void c_tunserver::run(int time) {
 	pfp_goal(mo_file_reader::gettext("L_starting_TUN"));
 
 	pfp_mark("Reading option...");
+#ifdef ANTINET_linux
 	m_tun_allow_init_failure = UsePtr(m_argm).at("tun-missing-ok").as<bool>() ;
+#endif
 	pfp_mark("Option is: " << m_tun_allow_init_failure);
 
 	{
