@@ -1882,7 +1882,9 @@ void c_tunserver::run(int time) {
 	pfp_goal(mo_file_reader::gettext("L_starting_TUN"));
 
 	pfp_mark("Reading option...");
+#ifdef ANTINET_linux
 	m_tun_allow_init_failure = UsePtr(m_argm).at("tun-missing-ok").as<bool>() ;
+#endif
 	pfp_mark("Option is: " << m_tun_allow_init_failure);
 
 	{
