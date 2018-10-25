@@ -556,6 +556,9 @@ c_tunserver::c_tunserver(int port, int rpc_port, const boost::program_options::v
 	m_rpc_server.add_rpc_function("get_btc_address", [this](const std::string &input_json) {
 		return rpc_btc_get_address(input_json);
 	});
+	m_rpc_server.add_rpc_function("get_btc_balance", [this](const std::string &input_json) {
+		return rpc_btc_get_balance(input_json);
+	});
 }
 
 boost::program_options::variables_map c_tunserver::get_default_early_argm() {
@@ -1328,6 +1331,21 @@ nlohmann::json c_tunserver::rpc_btc_get_address(const string &input_json)
 	try {
 		ret["state"] = "ok";
 		ret["address"] = bitcoin_node_cli::get_instance().get_new_address();
+	} catch (const std::exception &e) {
+		ret["state"] = "error";
+		ret["msg"] = e.what();
+		pfp_warn("rpc_btc_get_address error: " << e.what());
+	}
+	return ret;
+}
+
+nlohmann::json c_tunserver::rpc_btc_get_balance(const string &input_json)
+{
+	nlohmann::json ret;
+	ret["cmd"] = "get_btc_balance";
+	try {
+		ret["state"] = "ok";
+		ret["balance"] = bitcoin_node_cli::get_instance().get_balance();
 	} catch (const std::exception &e) {
 		ret["state"] = "error";
 		ret["msg"] = e.what();

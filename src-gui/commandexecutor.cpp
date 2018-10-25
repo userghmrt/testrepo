@@ -59,6 +59,12 @@ void commandExecutor::parseAndExecMsg( const std::string &msg ) {
         ord = std::make_unique<payOrder>(msg,this);
     }else if(inputOrder.get_cmd()=="set_account"){
         ord = std::make_unique<setAccountOrder>(msg,this);
+    }else if(inputOrder.get_cmd()=="get_btc_address"){
+        ord = std::make_unique<getBtcAddressOrder>(msg);
+    }else if(inputOrder.get_cmd()=="get_btc_balance"){
+        ord = std::make_unique<getBtcBalanceOrder>(msg);
+    }else if(inputOrder.get_cmd()=="get_payment_address"){
+        ord = std::make_unique<getPaymentAddressOrder>(msg);
     } else {
         qDebug()<<"unknown command";
         return;

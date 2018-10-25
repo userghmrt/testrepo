@@ -530,3 +530,7 @@ void MainWindow::setBtc(uint64_t btc)
     }
 }
 
+void MainWindow::on_actionGet_payment_address_triggered()
+{
+	m_sender->sendCommand( CommandSender::orderType::GET_PAYMENT_ADDRESS );
+}
